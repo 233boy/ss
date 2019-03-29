@@ -144,7 +144,7 @@ _install_info() {
 }
 _update() {
 	$cmd update -y
-	$cmd install -y wget gzip qrencode
+	$cmd install -y wget gzip
 }
 _download_ss() {
 	ver=$(curl -H 'Cache-Control: no-cache' -s https://api.github.com/repos/shadowsocks/go-shadowsocks2/releases | grep -m1 'tag_name' | cut -d\" -f4)
