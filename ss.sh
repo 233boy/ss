@@ -24,7 +24,7 @@ _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
 _ss_dir='/usr/bin/shadowsocks-go'
 _ss_file='/usr/bin/shadowsocks-go/shadowsocks-go'
 _ss_sh="/usr/local/sbin/ss"
-_ss_sh_ver="0.2"
+_ss_sh_ver="0.21"
 _ss_sh_link="https://raw.githubusercontent.com/233boy/ss/master/ss.sh"
 _ss_pid=$(pgrep -f $_ss_file)
 backup='/usr/bin/shadowsocks-go/backup.conf'
@@ -359,6 +359,7 @@ EOF
 	systemctl restart shadowsocks-go
 }
 _ss_qr() {
+	[[ -z $ip ]] && get_ip
 	local ss_link="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#${author}_ss_${ip}"
 	local link="https://233boy.github.io/tools/qr.html#${ss_link}"
 	echo
