@@ -11,6 +11,7 @@ none='\e[0m'
 [[ $(id -u) != 0 ]] && echo -e "\n 哎呀……请使用 ${red}root ${none}用户运行 ${yellow}~(^_^) ${none} \n" && exit 1
 
 cmd="apt-get"
+author=233boy
 _ss_tmp_dir="/tmp/ss-tmp"
 _ss_tmp_file="/tmp/ss-tmp/shadowsocks-go"
 _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
@@ -201,6 +202,7 @@ Wants=network.target
 Type=simple
 PIDFile=/var/run/shadowsocks-go.pid
 ExecStart=/usr/bin/shadowsocks-go/shadowsocks-go -s "ss://${ssciphers}:${sspass}@:${ssport}"
+RestartSec=3
 Restart=always
 LimitNOFILE=1048576
 LimitNPROC=512
@@ -238,7 +240,7 @@ del_port() {
 
 _ss_info() {
 	[[ -z $ip ]] && get_ip
-	local ss="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#233blog.com_ss_${ip}"
+	local ss="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#${author}_ss_${ip}"
 	echo
 	echo "---------- Shadowsocks 配置信息 -------------"
 	echo
@@ -260,16 +262,17 @@ _ss_info() {
 }
 
 try_enable_bbr() {
-	if [[ $(uname -r | cut -b 1) -eq 4 ]]; then
-		case $(uname -r | cut -b 3-4) in
-		9. | [1-9][0-9])
-			sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-			sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-			echo "net.ipv4.tcp_congestion_control = bbr" >>/etc/sysctl.conf
-			echo "net.core.default_qdisc = fq" >>/etc/sysctl.conf
-			sysctl -p >/dev/null 2>&1
-			;;
-		esac
+	local _test1=$(uname -r | cut -d\. -f1)
+	local _test2=$(uname -r | cut -d\. -f2)
+	if [[ $_test1 -eq 4 && $_test2 -ge 9 ]] || [[ $_test1 -ge 5 ]]; then
+		sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+		sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+		echo "net.ipv4.tcp_congestion_control = bbr" >>/etc/sysctl.conf
+		echo "net.core.default_qdisc = fq" >>/etc/sysctl.conf
+		sysctl -p >/dev/null 2>&1
+		echo
+		echo -e  "$green..由于你的 VPS 内核支持开启 BBR ...已经为你启用 BBR 优化....$none"
+		echo
 	fi
 }
 
@@ -365,7 +368,7 @@ uninstall() {
 clear
 while :; do
 	echo
-	echo "........... Shadowsocks-Go 一键安装脚本 & 管理脚本 by 233blog.com .........."
+	echo "........... Shadowsocks-Go 一键安装脚本 & 管理脚本 by $author .........."
 	echo
 	echo "帮助说明: https://233blog.com/post/36/"
 	echo

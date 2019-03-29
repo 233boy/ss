@@ -7,17 +7,24 @@ magenta='\e[95m'
 cyan='\e[96m'
 none='\e[0m'
 
+_red() { echo -e ${red}$*${none}; }
+_green() { echo -e ${green}$*${none}; }
+_yellow() { echo -e ${yellow}$*${none}; }
+_magenta() { echo -e ${magenta}$*${none}; }
+_cyan() { echo -e ${cyan}$*${none}; }
+
 # Root
 [[ $(id -u) != 0 ]] && echo -e "\n 哎呀……请使用 ${red}root ${none}用户运行 ${yellow}~(^_^) ${none} \n" && exit 1
 
 cmd="apt-get"
+author=233boy
 _ss_tmp_dir="/tmp/ss-tmp"
 _ss_tmp_file="/tmp/ss-tmp/shadowsocks-go"
 _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
 _ss_dir='/usr/bin/shadowsocks-go'
 _ss_file='/usr/bin/shadowsocks-go/shadowsocks-go'
 _ss_sh="/usr/local/sbin/ss"
-_ss_sh_ver="0.1"
+_ss_sh_ver="0.2"
 _ss_sh_link="https://raw.githubusercontent.com/233boy/ss/master/ss.sh"
 _ss_pid=$(pgrep -f $_ss_file)
 backup='/usr/bin/shadowsocks-go/backup.conf'
@@ -68,7 +75,7 @@ ciphers=(
 )
 _ss_info() {
 	[[ -z $ip ]] && get_ip
-	local ss="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#233blog.com_ss_${ip}"
+	local ss="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#${author}_ss_${ip}"
 	echo
 	echo "---------- Shadowsocks 配置信息 -------------"
 	echo
@@ -340,6 +347,7 @@ Wants=network.target
 Type=simple
 PIDFile=/var/run/shadowsocks-go.pid
 ExecStart=/usr/bin/shadowsocks-go/shadowsocks-go -s "ss://${ssciphers}:${sspass}@:${ssport}"
+RestartSec=3
 Restart=always
 LimitNOFILE=1048576
 LimitNPROC=512
@@ -351,31 +359,21 @@ EOF
 	systemctl restart shadowsocks-go
 }
 _ss_qr() {
+	local ss_link="ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#${author}_ss_${ip}"
+	local link="https://233boy.github.io/tools/qr.html#${ss_link}"
 	echo
-	echo -e "$green 正在生成链接.... 稍等片刻即可....$none"
+	echo "---------- Shadowsocks 二维码链接 -------------"
 	echo
-	[[ -z $ip ]] && get_ip
-	echo "ss://$(echo -n "${ssciphers}:${sspass}@${ip}:${ssport}" | base64 -w 0)#233blog.com_ss_${ip}" | qrencode -s 50 -o /tmp/233blog_shadowsocks.png
-	local random=$(echo $RANDOM-$RANDOM-$RANDOM | base64 -w 0)
-	local link=$(curl -s --upload-file /tmp/233blog_shadowsocks.png "https://transfer.sh/${random}_233blog_shadowsocks.png")
-	if [[ $link ]]; then
-		echo
-		echo "---------- Shadowsocks 二维码链接 -------------"
-		echo
-		echo -e "$yellow 链接 = $cyan$link$none"
-		echo
-		echo -e " 温馨提示...$red Shadowsocks Win 4.0.6 $none客户端可能无法识别该二维码"
-		echo
-		echo "备注...链接将在 14 天后失效"
-		echo
-		echo "提醒...请不要把链接分享出去...除非你有特别的理由...."
-		echo
-	else
-		echo
-		echo -e "$red 哎呀呀呀...出错咯...请重试$none"
-		echo
-	fi
-	rm -rf /tmp/233blog_shadowsocks.png
+	echo
+	_cyan "$link"
+	echo
+	echo
+	_yellow "没看到二维码啊???用浏览器打开上面的链接啊...."
+	echo
+	echo
+	_red " 温馨提示... Shadowsocks Win 4.0.6 客户端可能无法识别该二维码"
+	echo
+	echo
 }
 backup() {
 	for keys in $*; do
@@ -404,7 +402,8 @@ _ss_manage() {
 			echo
 		else
 			systemctl start shadowsocks-go
-			if [[ $? -ne 0 ]]; then
+			sleep 1.5
+			if [[ ! $(pgrep -f $_ss_file) ]]; then
 				echo
 				echo -e "${red} Shadowsocks 启动失败！$none"
 				echo
@@ -429,7 +428,8 @@ _ss_manage() {
 		;;
 	restart)
 		systemctl restart shadowsocks-go
-		if [[ $? -ne 0 ]]; then
+		sleep 1.5
+		if [[ ! $(pgrep -f $_ss_file) ]]; then
 			echo
 			echo -e "${red} Shadowsocks 重启失败！$none"
 			echo
@@ -516,7 +516,7 @@ uninstall() {
 }
 _help() {
 	echo
-	echo "........... Shadowsocks-Go 管理脚本 by 233blog.com .........."
+	echo "........... Shadowsocks-Go 管理脚本 by $author .........."
 	echo -e "
 	${yellow}ss menu $none管理 Shadowsocks (同等于直接输入 ss)
 
@@ -555,7 +555,7 @@ menu() {
 	clear
 	while :; do
 		echo
-		echo "........... Shadowsocks-Go 管理脚本 $_ss_sh_ver by 233blog.com .........."
+		echo "........... Shadowsocks-Go 管理脚本 $_ss_sh_ver by $author .........."
 		echo
 		echo "帮助说明: https://233blog.com/post/36/"
 		echo
