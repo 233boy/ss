@@ -258,6 +258,8 @@ _ss_info() {
 	echo
 	echo -e "提示: 输入$cyan ss qr $none可生成 Shadowsocks 二维码链接"
 	echo
+	echo -e "${yellow}免被墙..推荐使用JMS: ${cyan}https://getjms.com${none}"
+	echo
 
 }
 

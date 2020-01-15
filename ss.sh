@@ -24,7 +24,7 @@ _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
 _ss_dir='/usr/bin/shadowsocks-go'
 _ss_file='/usr/bin/shadowsocks-go/shadowsocks-go'
 _ss_sh="/usr/local/sbin/ss"
-_ss_sh_ver="0.21"
+_ss_sh_ver="0.22"
 _ss_sh_link="https://raw.githubusercontent.com/233boy/ss/master/ss.sh"
 _ss_pid=$(pgrep -f $_ss_file)
 backup='/usr/bin/shadowsocks-go/backup.conf'
@@ -92,6 +92,8 @@ _ss_info() {
 	echo -e " 备注:$red Shadowsocks Win 4.0.6 $none客户端可能无法识别该 SS 链接"
 	echo
 	echo -e "提示: 输入$cyan ss qr $none可生成 Shadowsocks 二维码链接"
+	echo
+	echo -e "${yellow}免被墙..推荐使用JMS: ${cyan}https://getjms.com${none}"
 	echo
 
 }
