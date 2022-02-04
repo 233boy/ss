@@ -103,7 +103,7 @@ shadowsocks_ciphers_config() {
 			fi
 		done
 		echo
-		read -p "$(echo -e "(默认加密协议: ${cyan}${ciphers[11]}$none)"):" ssciphers_opt
+		read -p "$(echo -e "(默认加密协议: ${cyan}${ciphers[2]}$none)"):" ssciphers_opt
 		[ -z "$ssciphers_opt" ] && ssciphers_opt=3
 		case $ssciphers_opt in
 		[1-3])
