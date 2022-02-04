@@ -17,7 +17,7 @@ _ss_tmp_file="/tmp/ss-tmp/shadowsocks-go"
 _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
 _ss_dir='/usr/bin/shadowsocks-go'
 _ss_file='/usr/bin/shadowsocks-go/shadowsocks-go'
-_ss_sh="/usr/local/sbin/ss"
+_ss_sh="/usr/local/sbin/ssgo"
 _ss_sh_link="https://raw.githubusercontent.com/233boy/ss/master/ss.sh"
 backup='/usr/bin/shadowsocks-go/backup.conf'
 
@@ -37,17 +37,8 @@ else
 fi
 
 ciphers=(
-	aes-128-cfb
-	aes-192-cfb
-	aes-256-cfb
-	aes-128-ctr
-	aes-192-ctr
-	aes-256-ctr
 	aes-128-gcm
-	aes-192-gcm
 	aes-256-gcm
-	xchacha20
-	chacha20-ietf
 	chacha20-ietf-poly1305
 )
 
@@ -113,9 +104,9 @@ shadowsocks_ciphers_config() {
 		done
 		echo
 		read -p "$(echo -e "(默认加密协议: ${cyan}${ciphers[11]}$none)"):" ssciphers_opt
-		[ -z "$ssciphers_opt" ] && ssciphers_opt=12
+		[ -z "$ssciphers_opt" ] && ssciphers_opt=3
 		case $ssciphers_opt in
-		[1-9] | 1[0-2])
+		[1-3])
 			ssciphers=${ciphers[$ssciphers_opt - 1]}
 			echo
 			echo
@@ -256,9 +247,9 @@ _ss_info() {
 	echo
 	echo -e " 备注:$red Shadowsocks Win 4.0.6 $none客户端可能无法识别该 SS 链接"
 	echo
-	echo -e "提示: 输入$cyan ss qr $none可生成 Shadowsocks 二维码链接"
+	echo -e "提示: 输入$cyan ssgo qr $none可生成 Shadowsocks 二维码链接"
 	echo
-	echo -e "${yellow}免被墙..推荐使用JMS: ${cyan}https://getjms.com${none}"
+	echo -e "${yellow}[AD] 推荐使用JMS..不会被墙的机场: ${cyan}https://getjms.com${none}"
 	echo
 
 }
@@ -305,12 +296,12 @@ install() {
 	# clear
 	# _install_info
 	# pause
-	try_enable_bbr
+	# try_enable_bbr
 	_update
 	_download_ss
 	_install_service
 	backup
-	open_port $ssport
+	# open_port $ssport
 	clear
 	_ss_info
 }
@@ -345,7 +336,7 @@ uninstall() {
 		if [[ $is_uninstall ]]; then
 			pause
 			. $backup
-			del_port $ssport
+			# del_port $ssport
 			systemctl stop shadowsocks-go
 			systemctl disable shadowsocks-go >/dev/null 2>&1
 			rm -rf $_ss_dir

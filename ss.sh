@@ -23,8 +23,8 @@ _ss_tmp_file="/tmp/ss-tmp/shadowsocks-go"
 _ss_tmp_gz="/tmp/ss-tmp/shadowsocks-go.gz"
 _ss_dir='/usr/bin/shadowsocks-go'
 _ss_file='/usr/bin/shadowsocks-go/shadowsocks-go'
-_ss_sh="/usr/local/sbin/ss"
-_ss_sh_ver="0.22"
+_ss_sh="/usr/local/sbin/ssgo"
+_ss_sh_ver="0.23"
 _ss_sh_link="https://raw.githubusercontent.com/233boy/ss/master/ss.sh"
 _ss_pid=$(pgrep -f $_ss_file)
 backup='/usr/bin/shadowsocks-go/backup.conf'
@@ -53,6 +53,14 @@ else
 	. $backup
 fi
 
+[[ -f /usr/local/sbin/ss ]] && {
+	mv /usr/local/sbin/ss /usr/local/sbin/ssgo
+	echo 
+	echo -e " 由于更新的原因...请使用 ${green}ssgo ${none} 命令"
+	echo
+	exit 0
+}
+
 if [[ $_ss_pid ]]; then
 	_ss_status="$green正在运行$none"
 else
@@ -60,17 +68,8 @@ else
 fi
 
 ciphers=(
-	aes-128-cfb
-	aes-192-cfb
-	aes-256-cfb
-	aes-128-ctr
-	aes-192-ctr
-	aes-256-ctr
 	aes-128-gcm
-	aes-192-gcm
 	aes-256-gcm
-	xchacha20
-	chacha20-ietf
 	chacha20-ietf-poly1305
 )
 _ss_info() {
@@ -91,9 +90,9 @@ _ss_info() {
 	echo
 	echo -e " 备注:$red Shadowsocks Win 4.0.6 $none客户端可能无法识别该 SS 链接"
 	echo
-	echo -e "提示: 输入$cyan ss qr $none可生成 Shadowsocks 二维码链接"
+	echo -e "提示: 输入$cyan ssgo qr $none可生成 Shadowsocks 二维码链接"
 	echo
-	echo -e "${yellow}免被墙..推荐使用JMS: ${cyan}https://getjms.com${none}"
+	echo -e "${yellow}[AD] 推荐使用JMS..不会被墙的机场: ${cyan}https://getjms.com${none}"
 	echo
 
 }
@@ -172,7 +171,7 @@ _change_ss_ciphers() {
 		read -p "$(echo -e "(当前加密协议: ${cyan}${ssciphers}$none)"):" ssciphers_opt
 		[ -z "$ssciphers_opt" ] && error && continue
 		case $ssciphers_opt in
-		[1-9] | 1[0-2])
+		[1-3])
 			new_ssciphers=${ciphers[$ssciphers_opt - 1]}
 			if [[ $new_ssciphers == $ssciphers ]]; then
 				echo
@@ -213,8 +212,8 @@ _ss_config() {
 			1)
 				_change_ss_port
 				pause
-				del_port $ssport
-				open_port $new_ssport
+				# del_port $ssport
+				# open_port $new_ssport
 				backup ssport
 				ssport=$new_ssport
 				_ss_service
@@ -502,7 +501,7 @@ uninstall() {
 	done
 	if [[ $is_uninstall ]]; then
 		pause
-		del_port $ssport
+		# del_port $ssport
 		systemctl stop shadowsocks-go
 		systemctl disable shadowsocks-go >/dev/null 2>&1
 		rm -rf $_ss_dir
@@ -521,27 +520,27 @@ _help() {
 	echo
 	echo "........... Shadowsocks-Go 管理脚本 by $author .........."
 	echo -e "
-	${yellow}ss menu $none管理 Shadowsocks (同等于直接输入 ss)
+	${yellow}ssgo menu $none管理 Shadowsocks (同等于直接输入 ssgo)
 
-	${yellow}ss info $none查看 Shadowsocks 配置信息
+	${yellow}ssgo info $none查看 Shadowsocks 配置信息
 
-	${yellow}ss config $none更改 Shadowsocks 配置
+	${yellow}ssgo config $none更改 Shadowsocks 配置
 
-	${yellow}ss qr $none生成 Shadowsocks 配置二维码链接
+	${yellow}ssgo qr $none生成 Shadowsocks 配置二维码链接
 
-	${yellow}ss status $none查看 Shadowsocks 运行状态
+	${yellow}ssgo status $none查看 Shadowsocks 运行状态
 
-	${yellow}ss start $none启动 Shadowsocks
+	${yellow}ssgo start $none启动 Shadowsocks
 
-	${yellow}ss stop $none停止 Shadowsocks
+	${yellow}ssgo stop $none停止 Shadowsocks
 
-	${yellow}ss restart $none重启 Shadowsocks
+	${yellow}ssgo restart $none重启 Shadowsocks
 
-	${yellow}ss update $none更新 Shadowsocks
+	${yellow}ssgo update $none更新 Shadowsocks
 
-	${yellow}ss update.sh $none更新 Shadowsocks 管理脚本
+	${yellow}ssgo update.sh $none更新 Shadowsocks 管理脚本
 
-	${yellow}ss uninstall $none卸载 Shadowsocks
+	${yellow}ssgo uninstall $none卸载 Shadowsocks
 "
 }
 menu() {
